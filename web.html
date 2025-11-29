@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Darknet Contract File</title>
+
+  <style>
+    body {
+      background: #02040a;
+      color: #d9ffe0;
+      font-family: "JetBrains Mono", monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 860px;
+      background: rgba(0, 30, 20, 0.6);
+      border: 1px solid rgba(0, 255, 140, 0.4);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 140, 0.3);
+      position: relative;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(125, 244, 182, 0.6);
+      background: rgba(0,0,0,0.4);
+      color: #e9fff3;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .section {
+      white-space: pre-line;
+      line-height: 1.6;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- TRANSLATE BUTTON -->
+    <button class="toggle-btn" id="toggle">TRANSLATE</button>
+
+    <!-- ORIGINAL (ENGLISH) -->
+    <div id="eng" class="section">
+DARKNET // CONTRACT FILE
+------------------------------------
+
+CONTRACT ID: #WD-2035-11-29-IMD
+CLIENT: [REDACTED]
+TARGET: IM DO-YOON (PSYCHOLOGICAL ASSET — High-Risk Class)
+
+LAST SEEN:
+Bangkok Metropolitan Area  
+(3 independent sightings within last 2 weeks)
+
+CONDITION:
+Alive & Communicable > Alive > Verified Data Only
+
+COMPENSATION:
+Up to 7 digits (crypto equivalent).  
+Amount varies by stability, exclusivity, and containment success.
+
+OBJECTIVE:
+Locate IM DO-YOON and establish controllable contact.  
+Primary goals:
+- Verify identity and mental stability  
+- Assess influence patterns  
+- Secure exclusive access via negotiation or external containment  
+
+Physical damage NOT recommended.
+
+ADDITIONAL NOTES:
+Multiple national agencies may have prior interest in the target.  
+No legal protection guaranteed.  
+Use only Webron encrypted channels.  
+Exposure of client identity terminates contract immediately.
+
+WARNING:
+Other groups may already be tracking the target.
+Do NOT assume you are the only asset on-site.
+    </div>
+
+    <!-- TRANSLATED (KOREAN) -->
+    <div id="kor" class="section hidden">
+DARKNET // 계약 파일 (번역본)
+------------------------------------
+
+계약 번호: #WD-2035-11-29-IMD
+의뢰인: [비공개]
+타깃: 임도윤 (정신계열 초능력 — 고위험 등급)
+
+최근 목격:
+태국 방콕 일대  
+(최근 2주 내 독립 제보 3건)
+
+요구 조건:
+생존 & 의사소통 가능 > 생존 > 검증 가능한 정보
+
+보상:
+최대 7자리(암호화폐 기준).  
+안정성·독점성·확보 방식에 따라 변동.
+
+목표:
+임도윤의 위치를 특정하고 통제 가능한 접촉을 수립할 것.  
+주요 목표:
+- 신원 및 정신 안정 상태 확인  
+- 감정/정신 영향 범위 및 패턴 평가  
+- 협상 혹은 관리 구조를 통한 ‘독점적 접근권’ 확보  
+
+물리적 손상은 가치 하락으로 인해 권장되지 않음.
+
+추가 메모:
+여러 국가 기관이 과거 타깃에 관여했을 가능성 존재.  
+법적 보호는 보장되지 않음.  
+Webron 암호화 채널 외 통신 금지.  
+의뢰인 신원 노출 시 계약 즉시 무효.
+
+경고:
+이미 다른 세력이 타깃을 추적 중일 수 있음.  
+현장에서 자신이 유일한 인물이라고 가정하지 말 것.
+    </div>
+
+  </div>
+
+  <script>
+    const btn = document.getElementById("toggle");
+    const eng = document.getElementById("eng");
+    const kor = document.getElementById("kor");
+
+    btn.addEventListener("click", () => {
+      eng.classList.toggle("hidden");
+      kor.classList.toggle("hidden");
+
+      btn.textContent = eng.classList.contains("hidden")
+        ? "ORIGINAL"
+        : "TRANSLATE";
+    });
+  </script>
+</body>
+</html>
