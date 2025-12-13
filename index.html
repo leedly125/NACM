@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>NACM // SUBJECT CONSOLE</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style>
+        :root {
+            --bg: #02040a;
+            --fg: #f5f7ff;
+            --accent: #00eaf2;
+            --accent-soft: rgba(0, 234, 242, .16);
+            --card: #070b14;
+            --border: rgba(255, 255, 255, .06);
+            --muted: #8f9ab4;
+            --danger: #ff4b6a;
+            --warn: #ffb74b;
+            --ok: #53ffa8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background:
+                radial-gradient(circle at 0 0, rgba(0, 234, 242, .12), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(137, 76, 255, .18), transparent 55%),
+                #02040a;
+            color: var(--fg);
+            overflow: hidden;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        button,
+        input,
+        select {
+            font: inherit
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(0, 0, 0, .75));
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .brand span {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .3);
+            text-transform: uppercase;
+            letter-spacing: .16em;
+            color: var(--muted);
+        }
+
+        main {
+            position: absolute;
+            inset: 34px 0 0 0;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .shell {
+            width: 100%;
+            max-width: 1120px;
+            height: 100%;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .2);
+            background:
+                radial-gradient(circle at 0 0, rgba(0, 234, 242, .22), transparent 55%),
+                linear-gradient(135deg, rgba(5, 10, 24, .98), rgba(3, 6, 14, .98));
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, .7),
+                0 0 0 1px rgba(255, 255, 255, .06) inset;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .shell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .crumbs {
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            font-size: 11px;
+        }
+
+        .crumbs span {
+            color: var(--accent);
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 3px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chip b {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .chip.danger {
+            border-color: rgba(255, 75, 106, .7);
+            color: var(--danger)
+        }
+
+        .chip.danger b {
+            color: var(--danger)
+        }
+
+        .chip.ok {
+            border-color: rgba(83, 255, 168, .7);
+            color: var(--ok)
+        }
+
+        .chip.ok b {
+            color: var(--ok)
+        }
+
+        section {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .panel {
+            background: radial-gradient(circle at 0 0, rgba(255, 255, 255, .03), transparent 55%), #040713;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel h2,
+        .panel h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            color: var(--muted);
+        }
+
+        .leftcol {
+            flex: 0 0 40%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .rightcol {
+            flex: 0 0 60%;
+            min-width: 0;
+        }
+
+        /* LOGIN PANEL */
+        #login {
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-inner {
+            max-width: 360px;
+            margin: 0 auto;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .login-title {
+            font-size: 17px;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            color: var(--muted);
+        }
+
+        .login-title span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            column-gap: 12px;
+            row-gap: 4px;
+            font-size: 12px;
+            align-items: center;
+        }
+
+        .kv b {
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-size: 10px;
+        }
+
+        .kv input {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            background: #03040a;
+            color: var(--fg);
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .28);
+            background: linear-gradient(135deg, rgba(0, 234, 242, .18), rgba(0, 234, 242, .02));
+            color: var(--fg);
+            font-size: 11px;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(0, 234, 242, .3);
+        }
+
+        .btn.small {
+            padding: 4px 10px;
+            font-size: 10px
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 11px
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .more-btn {
+            padding-inline: 8px;
+            font-size: 9px;
+        }
+
+
+        /* SUBJECT TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th,
+        td {
+            padding: 6px 4px;
+            border-bottom: 1px dashed rgba(255, 255, 255, .06);
+            text-align: left;
+        }
+
+        th {
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background .14s ease, border-color .14s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 234, 242, .07);
+            border-color: rgba(0, 234, 242, .4);
+        }
+
+        tbody tr td:first-child strong {
+            font-size: 12px;
+        }
+
+        .statusDot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            margin-right: 4px;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, .8);
+        }
+
+        .s-green {
+            background: var(--ok)
+        }
+
+        .s-yellow {
+            background: var(--warn)
+        }
+
+        .s-red {
+            background: var(--danger)
+        }
+
+        .s-gray {
+            background: #777
+        }
+
+        /* DOSSIER + MAP HUD */
+        .dossier {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .dossier h3 {
+            margin-bottom: 2px;
+        }
+
+        #subjectInfo {
+            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(0, 0, 0, .25);
+        }
+
+        .dossier .map-inner {
+            position: relative;
+            margin-top: 6px;
+            display: grid;
+            grid-template-columns: 1fr;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: #05070b;
+            min-height: 240px;
+            flex: 1 1 auto; 
+        }
+
+        .dossier .city {
+            position: relative;
+            overflow: hidden;
+            min-height: 100%;
+            --camX: 0px;
+            --camY: 0px;
+            --bgx: 0px;
+            --bgy: 0px;
+        }
+
+        .dossier .cityContent {
+            position: absolute;
+            inset: 0;
+            transform: translate(var(--camX), var(--camY));
+            will-change: transform;
+        }
+
+        .dossier .city::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0, 245, 255, .12) 1px, transparent 1px) var(--bgx) var(--bgy)/32px 32px,
+                linear-gradient(0deg, rgba(0, 245, 255, .12) 1px, transparent 1px) var(--bgx) var(--bgy)/32px 32px,
+                radial-gradient(circle at 40% 60%, rgba(0, 245, 255, .06), transparent 40%),
+                radial-gradient(circle at 70% 30%, rgba(0, 245, 255, .05), transparent 40%),
+                linear-gradient(180deg, #071018 0%, #060b12 60%, #05080e 100%);
+            filter: contrast(120%);
+        }
+
+        .dossier .datastream {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg,
+                    rgba(0, 245, 255, .05) 0 2px,
+                    transparent 2px 6px);
+            background-size: 200% 100%;
+            animation: flow 6s linear infinite;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        .dossier .radar {
+            position: absolute;
+            inset: -30%;
+            background: conic-gradient(from var(--a), rgba(0, 245, 255, .22), transparent 35%);
+            mix-blend-mode: screen;
+            filter: blur(10px);
+            animation: radar 7s linear infinite;
+        }
+
+        .dossier .rightHud {
+            border-left: 1px solid rgba(255, 255, 255, .06);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .02), transparent);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .dossier .rightHud h3 {
+            font-size: 11px;
+            letter-spacing: .16em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .dossier .streamBox {
+            height: 100px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 10px;
+            position: relative;
+            background: rgba(0, 0, 0, .3);
+            overflow: hidden;
+        }
+
+        .dossier #wave {
+            position: absolute;
+            inset: 0;
+        }
+
+        .dossier .streamGlow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(600px 240px at 20% 40%, rgba(0, 245, 255, .12), transparent 60%);
+            mix-blend-mode: screen;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 11px;
+        }
+
+        .hud {
+            font-size: 11px;
+            color: #8fa0b6;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            padding: 6px 8px;
+            min-height: 38px;
+        }
+
+        .logs {
+            margin-top: 6px;
+            height: 120px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 11px;
+            flex: 0 0 auto;
+        }
+
+        .log {
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 11px;
+            color: #8fd9ef;
+            background: rgba(0, 0, 0, .35);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 8px;
+            padding: 4px 6px;
+        }
+
+        /* === 맵 위 블립 + 미니 카드 (index2 스타일) === */
+        /* <<< 추가 */
+        .dossier .blip {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .dossier .blip .p {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent), 0 0 18px rgba(0, 245, 255, .45);
+        }
+
+        .dossier .blip.monitoring .p {
+            background: var(--ok);
+            box-shadow: 0 0 10px var(--ok), 0 0 18px rgba(83, 255, 168, .45);
+        }
+
+        .dossier .blip.missing .p {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger), 0 0 20px rgba(255, 75, 106, .5);
+        }
+
+        .dossier .blip.unknown .p {
+            background: #8892a0;
+            box-shadow: 0 0 8px #8892a0, 0 0 14px rgba(136, 146, 160, .4);
+        }
+
+        .mini {
+            /* 고정 위치 작은 정보창 */
+            /* <<< 추가 */
+            position: fixed;
+            min-width: 180px;
+            max-width: 240px;
+            background: rgba(4, 8, 12, .94);
+            border: 1px solid rgba(0, 245, 255, .3);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, .7);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: #a9e9ff;
+            z-index: 50;
+        }
+
+        .mini h4 {
+            margin: 0 0 4px;
+            color: #bffaff;
+            font-size: 11px;
+        }
+
+        .mini small {
+            color: var(--muted);
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%) translateY(100%);
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 234, 242, .7);
+            background: rgba(2, 8, 18, .96);
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform .25s ease, opacity .25s ease;
+            z-index: 40;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @keyframes flow {
+            to {
+                background-position: -200% 0
+            }
+        }
+
+        @keyframes radar {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @media (max-width:900px) {
+            main {
+                padding: 8px;
+                position: static;
+                /* ← 추가 */
+                inset: auto;
+                /* ← 추가 */
+                height: auto;
+                /* ← 추가 */
+            }
+
+
+            .shell {
+                padding: 10px;
+                height: auto;
+                /* ← 추가 */
+            }
+
+            section {
+                flex-direction: column;
+                overflow: visible;
+                /* ← 추가 */
+            }
+
+            .leftcol,
+            .rightcol {
+                flex: none;
+                /* ← 기존 flex:1 제거 추천 */
+                width: 100%;
+                /* ← 모바일용으로 확장 */
+            }
+
+            body {
+                overflow: auto
+            }
+        }
+
+        /* ============================================================
+    MOBILE OPTIMIZATION PATCH // NACM CONSOLE (연제 제작)
+    화면폭 768px 이하 → 모바일 전용 UI
+============================================================ */
+        @media (max-width: 768px) {
+
+            /* 전체 스크롤 naturally */
+            html,
+            body {
+                height: auto;
+                overflow: auto;
+            }
+
+            /* 헤더 더 얇게 + 글자 줄이기 */
+            header {
+                height: 30px;
+                padding: 0 10px;
+                font-size: 11px;
+            }
+
+            .brand {
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            .badge {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+
+            /* 메인 패딩 줄이기 */
+            main {
+                position: static;
+                inset: auto;
+                height: auto;
+            }
+
+            /* 쉘 가로 폭 꽉 차게 */
+            .shell {
+                height: auto;
+            }
+
+            /* header 부분 줄이기 */
+            .shell-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                font-size: 10px;
+            }
+
+            .crumbs {
+                font-size: 10px;
+            }
+
+            .chip-row {
+                gap: 4px;
+            }
+
+            /* 레이아웃 → 세로 1열 */
+            section {
+                overflow: visible;
+            }
+
+            .leftcol,
+            .rightcol {
+                flex: none;
+                width: 100%;
+            }
+
+            /* PANEL 기본 패딩 줄이기 */
+            .panel {
+                padding: 8px 10px;
+                border-radius: 10px;
+                gap: 6px;
+            }
+
+            /* 텍스트 작은 화면에서 가독성 유지 */
+            table {
+                font-size: 10px;
+            }
+
+            th {
+                font-size: 9px;
+            }
+
+            td {
+                font-size: 10px;
+                padding: 5px 3px;
+            }
+
+            /* 상태점 크기 살짝 줄이기 */
+            .statusDot {
+                width: 7px;
+                height: 7px;
+                margin-right: 3px;
+            }
+
+            /* 상세 정보 · Unlock 입력칸 · HUD 모두 폭 100% */
+            #subjectInfo,
+            #unlockBox,
+            .hud {
+                width: 100%;
+                font-size: 10px;
+                padding: 6px;
+            }
+
+            /* 미니맵 / city 영역 높이 줄이기 */
+            .map-inner {
+                min-height: 180px;
+            }
+
+            /* radar / datastream 애니메이션 강도 감소 (모바일 부하 방지) */
+            .dossier .radar {
+                filter: blur(6px);
+            }
+
+            /* logs 길이 조절 */
+            .logs {
+                max-height: 24dvh;
+                font-size: 10px;
+            }
+
+            /* MINI 카드 모바일에서는 화면 밖으로 안 나가게 */
+            .mini {
+                max-width: 180px;
+                font-size: 10px;
+                padding: 6px 8px;
+            }
+
+            /* 버튼 크기 줄이기 */
+            .btn {
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+
+            .btn.small {
+                padding: 4px 8px;
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <span>NACM</span>
+            <div>국가능력개발및관리원 // OBSERVER NODE</div>
+        </div>
+        <div class="badge">INTERNAL // LEVEL 3</div>
+    </header>
+
+    <main>
+        <div class="shell">
+            <div class="shell-header">
+                <div class="crumbs">
+                    NACM // <span>SUBJECT LINK CONSOLE</span>
+                </div>
+                <div class="chip-row">
+                    <div class="chip"><b>ZONE</b> S-03 // METRO</div>
+                    <div class="chip danger"><b>ALERT</b> PATTERN MATCH 2Y AGO</div>
+                    <div class="chip ok"><b>STATUS</b> LINK STANDBY</div>
+                </div>
+            </div>
+
+            <!-- LOGIN -->
+            <section id="login" class="panel">
+                <div class="login-inner">
+                    <div class="login-title">
+                        NACM LINK // <span>AGENT AUTH</span>
+                    </div>
+                    <p class="muted">
+                        현장 요원 인증 후, 고위험 초능력자 관찰 콘솔에 접속할 수 있습니다.
+                        인증 정보는 내부 망을 통해 암호화 전송됩니다.
+                    </p>
+                    <div class="kv" style="margin-top:6px">
+                        <b>Agent ID</b>
+                        <div><input type="text" value="E-3 / FIELD" disabled></div>
+                        <b>Zone</b>
+                        <div><input type="text" value="서울권역 S-03" disabled></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                        <button class="btn" id="btnAuth">
+                            LINK AUTH
+                        </button>
+                        <span class="muted">인증 후 대상 리스트가 활성화됩니다.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CONSOLE -->
+            <section id="console" class="hidden">
+                <div class="leftcol">
+                    <div class="panel">
+                        <h3>SUBJECT // INDEX</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NAME</th>
+                                    <th>STATE</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody"></tbody>
+                        </table>
+                        <div class="muted" style="margin-top:4px">
+                            · 클릭 시 대상 상세 + 링크 HUD 동기화
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rightcol">
+                    <div class="panel dossier" id="dossier">
+                        <h3>SELECTED // SUBJECT</h3>
+
+                        <!-- 선택된 인물 정보 -->
+                        <div id="subjectInfo" class="kv">
+                            <b>이름</b>
+                            <div>—</div>
+                            <b>상태</b>
+                            <div>—</div>
+                            <b>능력</b>
+                            <div>—</div>
+                            <b>메모</b>
+                            <div>왼쪽 목록에서 대상을 선택하세요.</div>
+                            <b>마지막 갱신</b>
+                            <div>—</div>
+                        </div>
+
+                        <div id="subjectDetail" class="hud hidden" style="margin-top:6px;">
+                            <!-- More 버튼 눌렀을 때 상세 정보가 여기로 들어감 -->
+                        </div>
+
+                        <div class="kv" id="unlockBox" style="margin-top:6px">
+                            <b>UNLOCK</b>
+                            <div style="display:flex;gap:4px;align-items:center;">
+                                <input id="unlockInput" type="password" placeholder="코드 입력" style="flex:1;min-width:0;">
+                                <button class="btn small" id="btnUnlock">OK</button>
+                            </div>
+                        </div>
+
+                        <!-- Mini Map HUD -->
+                        <div class="map-inner">
+                            <div class="city" id="cityView">
+                                <div class="cityContent">
+                                    <div class="datastream"></div>
+                                    <div class="radar"></div>
+                                    <!-- blips injected here -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 로그 -->
+                        <div class="logs" id="logs"></div>
+                    </div>
+            </section>
+        </div>
+    </main>
+
+
+
+    <script>
+        // ===== Helpers =====
+        function timeAgo(d) {
+            if (!(d instanceof Date)) d = new Date(d);
+            const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+            if (sec < 60) return sec + "s 전";
+            const m = Math.floor(sec / 60);
+            if (m < 60) return m + "m 전";
+            const h = Math.floor(m / 60);
+            if (h < 24) return h + "h 전";
+            const dd = Math.floor(h / 24);
+            return dd + "d 전";
+        }
+        function ago(sec) {
+            return new Date(Date.now() - sec * 1000);
+        }
+
+        function banner(msg) {
+            const b = document.getElementById('toast');
+            if (!b) return;
+            b.textContent = msg;
+            b.classList.add('show');
+            setTimeout(() => b.classList.remove('show'), 1600);
+        }
+
+        function log(msg) {
+            const logs = document.getElementById('logs');
+            if (!logs) return;
+            const el = document.createElement('div');
+            el.className = 'log';
+            const t = new Date();
+            const hh = String(t.getHours()).padStart(2, '0');
+            const mm = String(t.getMinutes()).padStart(2, '0');
+            el.textContent = `[${hh}:${mm}] ${msg}`;
+            logs.prepend(el);
+            while (logs.children.length > 60) {
+                logs.lastChild.remove();
+            }
+        }
+
+        // ===== Data : 2년 전 기준 LOCKED 상태 기록 =====
+        const subjects = [
+            { id: 'khw', name: '강현우', status: 'locked', ability: '물질분해', note: '2년 전 수용소 붕괴 직전, 실험동 B동 마지막 기록.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'sjh', name: '서지호', status: 'locked', ability: '시간조종', note: '붕괴 지점 중심부 인근에서 비정상적인 시간 왜곡 포착 후 기록 끊김.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'idy', name: '임도윤', status: 'locked', ability: '정신지배', note: '관찰 로그 다수 삭제. 2년 전 기록 기준, 정신 개입 의심.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'cjk', name: '최준혁', status: 'locked', ability: '정보조작', note: '출입기록 및 CCTV 로그 조작 흔적. 붕괴 당일 행적 불명.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'ktj', name: '김태준', status: 'locked', ability: '중력조작', note: '수용구역 전체 중력 변동의 중심. 격리 직전까지 과부하 상태.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'lmw', name: '이민우', status: 'locked', ability: '독성변환', note: '독성 구역 유출 사고 이후, 별도 독립 구역으로 격리.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'yhj', name: '윤하진', status: 'locked', ability: '에너지폭발', note: '붕괴 지점 에너지 폭심지. 이후 기록 없음.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'lsh', name: '이수호', status: 'locked', ability: '기억조작', note: '관찰 인력들의 기억 공백 다수 보고. 공식 기록과 진술 불일치.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'cmg', name: '천민결', status: 'locked', ability: '물리강화', note: '2년 전 수용소 붕괴 당시, 외부 대기조 인근에서 마지막 포착.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'gjw', name: '강지원', status: 'locked', ability: '신체재생', note: '중상 입었음에도 생존. 이후 독립 격리실로 이송 기록 후 데이터 끊김.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'osj', name: '오세준', status: 'locked', ability: '생체조작', note: '붕괴 직전, 실험체 다수의 생체 반응 이상치 보고됨.', updatedAt: ago(60 * 60 * 24 * 730) },
+            { id: 'jhs', name: '정현수', status: 'locked', ability: '전자기파', note: '관측 장비 과부하 유발. 통신 로그 대량 손실의 원인으로 추정.', updatedAt: ago(60 * 60 * 24 * 730) }
+        ];
+
+        const statusMap = {
+            monitoring: { label: 'Monitoring', dot: 's-green' },
+            missing: { label: 'Missing', dot: 's-red' },
+            unknown: { label: 'Unknown', dot: 's-gray' },
+            locked: { label: 'Locked', dot: 's-yellow' }
+        };
+
+        // ===== Unlock 이후 적용될 "현재 정보" 프로필 =====
+        const unlockProfiles = {
+            khw: {
+                status: "monitoring",
+                ability: "물질분해",
+                note: "현재: 외부 비공개 시설에서 제한적 협력 중. 물질 분해 능력은 안정화 프로토콜 적용 상태."
+            },
+            sjh: {
+                status: "monitoring",
+                ability: "시간조종",
+                note: "현재: 시간 왜곡 범위 축소. 의도적 사용에 대한 자가 보고가 가능해짐."
+            },
+            idy: {
+                status: "monitoring",
+                age: "30세",
+                ability: "정신지배",
+                sideEffect: "능력 사용 후 대상의 감정이 일시적으로 전이되는 현상이 확인됨.",
+                family: {
+                    relation: "부모님, 누나 임가은(33세)",
+                    note: "수용 조치 이후 가족과의 접촉을 전면 중단한 상태. 이는 능력을 악용하려는 외부 세력으로부터 가족을 보호하기 위한 자발적 단절로 판단됨."
+                },
+                lifestyle: {
+                    substances: "담배·주류·진정제류 약물 복합 사용 이력 확인됨.",
+                },
+                psychology: {
+                    tendency: "자신의 감정과 타인의 감정을 구분하는 데 지속적인 어려움을 겪는 것으로 보임. 감정 전이에 따른 피로 누적으로 예민도가 높아진 상태가 반복적으로 관찰됨.",
+                },
+                admission: "과거 3선 국회의원 장석기의 보좌진으로 재직하며 능력 사용이 의심되는 사건에 연루됨. 사건 이후, 비자발적 능력 발현으로 인한 위험성이 확인되어 보호·격리 조치가 시행됨.",
+                note: "현재 Webron 외 복수의 이익 집단이 대상의 능력 확보를 시도하는 정황이 지속 보고됨.",
+            },
+            cjk: {
+                status: "monitoring",
+                ability: "정보조작",
+                note: "현재: 데이터 위조 흔적 자체를 추적하기 위한 내부 도구 역할로 활용 중."
+            },
+            ktj: {
+                status: "monitoring",
+                ability: "중력조작",
+                note: "현재: 중력 필드 조절 범위가 안정화 단계. 실전 투입 가능성 검토 중."
+            },
+            lmw: {
+                status: "monitoring",
+                age: "24세",
+                family: {
+                    relation: "부모님, 형 이강우(27세)",
+                    note: "부모는 경제적 지원만 지속해왔으며, 정서적 교류는 거의 없는 것으로 파악됨."
+                },
+                ability: "독성변환",
+                sideEffect: "능력 사용 여부와 무관하게 체내에 미량의 독성 물질이 상시 잔류하는 현상이 확인됨.",
+                lifestyle: {
+                    substances: "흡연 이력 있음. 주류 및 약물 사용 이력은 확인되지 않음."
+                },
+                psychology: {
+                    tendency: "대체로 온화하고 예의바른 태도를 보이나, 필요 시 상황을 자신에게 유리한 방향으로 조정하려는 경향이 관찰됨. 외로움을 관계 형성의 수단으로 활용하는 사례가 보고됨."
+                },
+                admission: "초기 능력 발현 시 독성 물질 폭주로 인한 사고가 발생하여 다수의 인명 피해가 보고됨. 해당 사고로 형 이강우 또한 부상을 입은 사실이 확인됨.",
+                note: "최근 요원을 특정 구역으로 유도하려 한 정황이 관찰됨. 의도 파악이 필요하며, 최준혁과의 비공식 접촉 이력이 추가 보고됨."
+            },
+            yhj: {
+                status: "monitoring",
+                age: "30세",
+                family: {
+                    relation: "등록된 가족 없음",
+                    note: "장기간 단독 생존 기록이 확인됨."
+                },
+                ability: "에너지 폭발",
+                sideEffect: "대규모 에너지 방출 이후 체온 조절 기능 상실 및 극심한 피로 누적이 확인됨.",
+                lifestyle: {
+                    substances: "주류·담배·약물 사용 이력 없음."
+                },
+                psychology: {
+                    tendency: "고위험 상황 및 파괴적 자극을 통한 자기 존재감 확인 경향이 관찰됨. 충동 조절 능력의 불안정성이 반복적으로 보고됨."
+                },
+                admission: "초기 능력 발현 이후 개인적 충동에 의한 무분별한 에너지 방출 사례가 다수 보고됨. 이로 인한 도시 기반 시설 손괴 및 인명 피해 위험이 확인되어 보호·격리 조치가 시행됨.",
+                note: "최근 에너지 방출량의 자가 조절 능력이 일부 회복된 것으로 보고됨. 독립 활동을 지속하고 있으며, 비공식적 추종 집단의 존재가 추가 관측됨."
+            },
+            lsh: {
+                status: "monitoring",
+                ability: "기억조작",
+                note: "현재: 증언 보호 및 신원 보호 목적의 제한적 사용 허가. 남용 방지 프로토콜 동시 운용."
+            },
+            cmg: {
+                status: "monitoring",
+                age: "29세",
+                family: {
+                    relation: "7남매 중 첫째",
+                    note: "부모는 사고로 사망하였으며, 다섯째 동생 또한 별도 사고로 사망한 사실이 확인됨."
+                },
+                ability: "신체의 물리적 강화",
+                sideEffect: "과도한 신체 강화 후 근육 파열 및 미세 골절이 발생하는 경향이 보고됨.",
+                lifestyle: {
+                    substances: "긴장 시 손톱 물어뜯기 및 구강 내 점막을 씹는 반복적 행동이 관찰됨. 손목시계를 자주 만지며, 방향 감각 및 기계 조작 능력은 낮은 것으로 평가됨."
+                },
+                psychology: {
+                    tendency: "사고 과정이 단순·직선적이며 복잡한 상황을 회피하는 경향이 있음. 주요 판단을 직감에 의존하는 사례가 반복적으로 확인됨."
+                },
+                admission: "다섯째 동생 사망 직후 충동적 행동으로 은행 강도 시도가 발생하였으며, 이 과정에서 비정상적 신체 강화 사용이 확인됨. 공공 안전 위험을 근거로 보호·격리 조치가 시행됨.",
+                note: "현재 NACM 소속 현장 요원으로 재배치되어 고위험 임무에 우선 투입되는 전담 요원으로 운영 중임."
+            },
+            gjw: {
+                status: "monitoring",
+                ability: "신체재생",
+
+                note: "현재: 재생 능력은 여전히 강력하나, 과도 사용 시 피로 누적 보고됨. 지원 요원 겸 실험 대상."
+            },
+            osj: {
+                status: "monitoring",
+                age: "31세",
+                family: {
+                    relation: "3남매 중 둘째",
+                    note: "부모는 모두 외과 의사로 확인됨. 형 오세진(35세), 여동생 오세영(29세)이 있으며, 의과대학 퇴학 이후 가족과의 연락을 전면 중단한 상태로 파악됨."
+                },
+                ability: "생체조작",
+                sideEffect: "능력 사용이 장시간 지속되거나 장기 단위 이상의 조작이 반복될 경우, 본인의 감각 신경에 불안정 현상이 발생하는 사례가 보고됨.",
+                lifestyle: {
+                    substances: "진통제·진정제 등 다양한 약물 사용 이력이 확인됨. 대화 시 상대의 신체 반응과 구조를 관찰하는 시선 행동이 반복적으로 관찰됨."
+                },
+                psychology: {
+                    tendency: "도덕적 판단 기준이 관찰되지 않으며, 타인에 대한 공감 반응이 극히 제한적임. 인간을 독립된 인격체가 아닌 관찰 및 실험 대상으로 인식하는 경향이 지속적으로 확인됨."
+                },
+                admission: "의과대학 재학 중 해부 실습 과정에서의 비정상적 관심으로 내부 신고가 접수되었으며, 이후 자진 퇴학 처리됨. 퇴학 이후 능력 발현과 함께 개인 실험실에서 비인가 인체 실험을 진행한 정황이 확인되어 고위험 초능력자 수용소에 수감됨.",
+                note: "현재 스위스에 있는 상류층 전용 프라이빗 의료 시설인 빌라 몽트레발(Villa Montreval)에 체류 중인 것으로 파악됨. 상류층 고객을 대상으로 능력을 대가성으로 제공하고 있으며, 복수의 국제 이익 집단과의 비공식 접촉 가능성이 제기됨."
+            },
+            jhs: {
+                status: "monitoring",
+                ability: "전자기파",
+                note: "현재: 통신 교란 및 전자 방어 임무에 투입. 자신의 능력으로 잃어버린 기록 복구를 시도 중."
+            }
+        };
+
+        // ===== Unlock Code Mapping (캐릭터별 해제 코드) =====
+        const unlockCodes = {
+            "2702213418": "khw",
+            "9803901542": "sjh",
+            "1801132063": "idy",
+            "3703532255": "cjk",
+            "3803602536": "ktj",
+            "4703721828": "lmw",
+            "3703472877": "yhj",
+            "1701163169": "lsh",
+            "2602054483": "cmg",
+            "4504704271": "gjw",
+            "4704713992": "osj",
+            "3703413095": "jhs"
+        };
+
+        // ===== Firestore에서 불러온 unlock을 subjects에 반영하는 함수 =====
+        function applyStoredUnlocks(unlockData) {
+            if (!unlockData) {
+                // 저장된 게 없으면 그냥 기본 목록만 그림
+                renderTable();
+                renderBlips();
+                return;
+            }
+
+            subjects.forEach(s => {
+                if (unlockData[s.id]) {
+                    const profile = unlockProfiles[s.id];
+                    if (profile) {
+                        // 프로필에 있는 값들을 통째로 덮어쓰기 (status, ability, note, age, sideEffect 등)
+                        Object.assign(s, profile);
+                    } else {
+                        s.status = "monitoring";
+                        s.note = (s.note || "") + " // RESTORED";
+                    }
+
+                    s.updatedAt = new Date();
+                }
+            });
+
+            renderTable();
+            renderBlips();
+        }
+
+        // 모듈 스크립트에서 쓸 수 있게 window에 올려두기
+        window.applyStoredUnlocks = applyStoredUnlocks;
+
+        function unlockByCode(code) {
+            const clean = String(code || "").trim();
+            if (!clean) {
+                banner("CODE EMPTY");
+                return false;
+            }
+
+            const targetId = unlockCodes[clean];
+            if (!targetId) {
+                banner("INVALID CODE");
+                log("UNLOCK FAIL // CODE " + clean);
+                return false;
+            }
+
+            const s = subjects.find(x => x.id === targetId);
+            if (!s) {
+                banner("NO SUBJECT");
+                log("UNLOCK FAIL // SUBJECT NOT FOUND");
+                return false;
+            }
+
+            // 이미 풀려 있으면
+            if (s.status !== "locked") {
+                banner("ALREADY UNLOCKED");
+                log("UNLOCK REDUNDANT // " + s.name);
+                selectSubject(s);
+                return true;
+            }
+
+            // 여기서 진짜 해제: 2년 전 기록 → 현재 프로필로 교체
+            const profile = unlockProfiles[targetId];
+
+            if (profile) {
+                Object.assign(s, profile);
+            } else {
+                s.status = "monitoring";
+                s.note = (s.note || "") + " // CODE UNLOCKED";
+            }
+
+            s.updatedAt = new Date();
+
+            // Firestore에 저장 요청 (모듈 스크립트가 처리)
+            if (window.saveUnlockState) {
+                window.saveUnlockState(targetId);
+            }
+
+            renderTable();
+            renderBlips();
+            selectSubject(s);
+            banner("LINK UNLOCKED");
+            log("UNLOCK OK // " + s.name + " VIA CODE " + clean);
+            return true;
+        }
+
+        // ===== DOM refs =====
+        const loginSec = document.getElementById('login');
+        const consoleSec = document.getElementById('console');
+        const tbody = document.getElementById('tbody');
+        const subjectInfo = document.getElementById('subjectInfo');
+        const cityView = document.getElementById('cityView');
+        const cityContent = cityView ? cityView.querySelector('.cityContent') : null;
+        const subjectDetail = document.getElementById('subjectDetail');
+
+
+        const blipEls = new Map();
+        let miniEl = null;
+
+        // ===== Auth click =====
+        document.getElementById('btnAuth').addEventListener('click', () => {
+            loginSec.style.transition = 'opacity .35s ease';
+            loginSec.style.opacity = '0';
+            setTimeout(() => {
+                loginSec.classList.add('hidden');
+                consoleSec.classList.remove('hidden');
+                loginSec.style.opacity = '1';
+
+                // 🔥 Firebase 모듈이 있으면 거기서 unlock 불러오라고 요청
+                if (window.requestUnlockSync) {
+                    window.requestUnlockSync();
+                } else {
+                    // Firebase 연동 전이라면 그냥 기본 렌더링
+                    renderTable();
+                    renderBlips();
+                }
+
+                banner('LINK ONLINE — SAT RELAY ACTIVE');
+                log('LINK ONLINE // SUBJECT INDEX SYNC');
+            }, 350);
+        });
+
+        // ===== Table render =====
+        function renderTable() {
+            tbody.innerHTML = '';
+            subjects.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+      <td><strong>${s.name}</strong></td>
+      <td><span class="statusDot ${statusMap[s.status].dot}"></span>${statusMap[s.status].label}</td>
+      <td class="actions"></td>
+    `;
+
+                // 행 클릭 시 기본 선택
+                tr.addEventListener('click', () => selectSubject(s));
+
+                // More 버튼 (해제된 대상만)
+                const actionsTd = tr.querySelector('.actions');
+                if (s.status !== 'locked') {
+                    const btn = document.createElement('button');
+                    btn.textContent = 'MORE';
+                    btn.className = 'btn small more-btn';
+                    btn.addEventListener('click', (ev) => {
+                        ev.stopPropagation();      // 행 클릭 이벤트랑 안 섞이게
+                        selectSubject(s);          // HUD도 같이 동기화
+                        showSubjectDetail(s);      // 상세 정보 열기
+                    });
+                    actionsTd.appendChild(btn);
+                }
+
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        // ===== Subject select =====
+        function selectSubject(s) {
+            if (subjectDetail) {
+                subjectDetail.classList.add('hidden');
+                subjectDetail.innerHTML = '';
+            }
+
+            subjectInfo.innerHTML = `
+      <b>이름</b><div><span class="statusDot ${statusMap[s.status].dot}"></span>${s.name}</div>
+      <b>상태</b><div>${statusMap[s.status].label}</div>
+      <b>능력</b><div>${s.ability}</div>
+      <b>메모</b><div>${s.note || '—'}</div>
+      <b>마지막 갱신</b><div class="timer" id="selTimer">${timeAgo(s.updatedAt)}</div>
+    `;
+
+            log(`[SELECT] ${s.name} — ${statusMap[s.status].label}`);
+            pingMini(s);
+
+            if (window.selTimerInt) clearInterval(window.selTimerInt);
+            window.selTimerInt = setInterval(() => {
+                const el = document.getElementById('selTimer');
+                if (el) el.textContent = timeAgo(s.updatedAt);
+            }, 1000);
+            // 🔹 잠금 대상 선택하면 상세 박스 숨기기
+            if (subjectDetail) {
+                if (s.status === 'locked') {
+                    subjectDetail.classList.add('hidden');
+                    subjectDetail.innerHTML = '';
+                }
+            }
+        }
+
+        function showSubjectDetail(s) {
+            if (!subjectDetail) return;
+
+            if (s.status === 'locked') {
+                subjectDetail.classList.add('hidden');
+                subjectDetail.innerHTML = '';
+                banner('LOCKED SUBJECT');
+                return;
+            }
+
+            let html = '';
+
+            if (s.age) {
+                html += `<div><b>연령</b> : ${s.age}</div>`;
+            }
+            if (s.sideEffect) {
+                html += `<div><b>후유증</b> : ${s.sideEffect}</div>`;
+            }
+            if (s.lifestyle && s.lifestyle.substances) {
+                html += `<div><b>생활 습관</b> : ${s.lifestyle.substances}</div>`;
+            }
+            if (s.psychology && s.psychology.tendency) {
+                html += `<div><b>성향</b> : ${s.psychology.tendency}</div>`;
+            }
+
+            if (s.family) {
+                if (s.family.relation) {
+                    html += `<div><b>가족 관계</b> : ${s.family.relation}</div>`;
+                }
+                if (s.family.note) {
+                    html += `<div><b>배경 서술</b> : ${s.family.note}</div>`;
+                }
+            }
+
+            if (s.admission) {
+                html += `<div><b>수용 경위</b> : ${s.admission}</div>`;
+            }
+
+            if (!html) {
+                html = `<div>추가 프로필 기록이 없습니다.</div>`;
+            }
+
+            subjectDetail.innerHTML = `
+    <div style="font-size:11px; line-height:1.5">
+      <div style="
+        text-transform:uppercase;
+        letter-spacing:.16em;
+        font-size:10px;
+        color:var(--muted);
+        margin-bottom:4px;
+      ">
+        DETAIL // PROFILE
+      </div>
+      ${html}
+    </div>
+  `;
+            subjectDetail.classList.remove('hidden');
+        }
+
+
+        // ====== 맵 위 블립 렌더링 ======
+        function renderBlips() {
+            if (!cityContent) return;
+            Array.from(cityContent.querySelectorAll('.blip')).forEach(e => e.remove());
+            blipEls.clear();
+
+            subjects.forEach((s, i) => {
+                const el = document.createElement('div');
+                el.className = 'blip ' + s.status;
+
+                const seedX = 10 + (i * 19) % 78;
+                const seedY = 12 + (i * 23) % 76;
+                el.style.left = seedX + '%';
+                el.style.top = seedY + '%';
+
+                el.innerHTML = `<div class="p"></div>`;
+                el.title = s.name;
+
+                el.addEventListener('click', (ev) => {
+                    selectSubject(s);
+                    showMini(ev.clientX, ev.clientY, s);
+                    ripple3(el);
+                });
+
+                cityContent.appendChild(el);
+                blipEls.set(s.id, el);
+            });
+        }
+
+        // 선택된 대상 기준으로 미니 카드 띄우기
+        function pingMini(s) {
+            const el = blipEls.get(s.id);
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            showMini(cx, cy, s);
+            ripple3(el);
+        }
+
+        function showMini(x, y, s) {
+            if (miniEl) miniEl.remove();
+            miniEl = document.createElement('div');
+            miniEl.className = 'mini';
+            miniEl.innerHTML = `
+      <h4>${s.name}</h4>
+      <div>상태: ${statusMap[s.status].label}</div>
+      <div>능력: ${s.ability}</div>
+      <small>마지막 갱신 · ${timeAgo(s.updatedAt)}</small>
+    `;
+
+            const mapRect = document.querySelector('.map-inner').getBoundingClientRect();
+            const nx = Math.min(mapRect.right - 220, Math.max(mapRect.left + 10, x + 12));
+            const ny = Math.min(mapRect.bottom - 120, Math.max(mapRect.top + 10, y - 10));
+            miniEl.style.left = nx + 'px';
+            miniEl.style.top = ny + 'px';
+
+            document.body.appendChild(miniEl);
+
+            setTimeout(() => {
+                if (miniEl) {
+                    miniEl.remove();
+                    miniEl = null;
+                }
+            }, 3200);
+        }
+
+        // 점에서 파동 3번 퍼지는 애니메이션
+        function ripple3(el) {
+            const make = (delay) => {
+                const ring = document.createElement('div');
+                ring.style.position = 'absolute';
+                ring.style.left = '-18px';
+                ring.style.top = '-18px';
+                ring.style.width = '48px';
+                ring.style.height = '48px';
+                ring.style.border = '2px solid rgba(0,245,255,.7)';
+                ring.style.borderRadius = '50%';
+                ring.style.opacity = '0.9';
+                ring.style.pointerEvents = 'none';
+                ring.style.filter = 'drop-shadow(0 0 8px rgba(0,245,255,.6))';
+
+                ring.animate(
+                    [
+                        { transform: 'scale(0.4)', opacity: 0.9 },
+                        { transform: 'scale(2.1)', opacity: 0 }
+                    ],
+                    { duration: 1200, delay: delay, easing: 'ease-out' }
+                ).onfinish = () => ring.remove();
+
+                el.appendChild(ring);
+            };
+            make(0); make(180); make(360);
+        }
+
+        // ===== UNLOCK INPUT 연동 =====
+        const unlockInput = document.getElementById('unlockInput');
+        const btnUnlock = document.getElementById('btnUnlock');
+
+        if (btnUnlock && unlockInput) {
+            btnUnlock.addEventListener('click', () => {
+                const v = unlockInput.value;
+                if (!v.trim()) return;
+                unlockByCode(v);
+                unlockInput.value = "";
+            });
+            unlockInput.addEventListener('keydown', (e) => {
+                if (e.key === "Enter") {
+                    btnUnlock.click();
+                }
+            });
+        }
+
+        // ===== Mini map wave init (캔버스 없으면 자동 스킵) =====
+        (function () {
+            const canvas = document.getElementById('wave');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resize() {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+
+            resize();
+            const ro = new ResizeObserver(resize);
+            ro.observe(canvas.parentElement);
+
+            let t = 0;
+            function draw() {
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.globalAlpha = 0.9;
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(126,249,255,.9)';
+                ctx.beginPath();
+                for (let x = 0; x < w; x += 3) {
+                    const y = h * 0.5
+                        + Math.sin((x + t) / 42) * 10
+                        + Math.cos((x + t) / 17) * 6;
+                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                t += 2;
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        })();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+        // 지인 Firebase 프로젝트 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX9EghLLhQPFUxDxGgVbe-6VjSva-r2vQ",
+            authDomain: "nacm-2041e.firebaseapp.com",
+            projectId: "nacm-2041e",
+            storageBucket: "nacm-2041e.firebasestorage.app",
+            messagingSenderId: "90299682381",
+            appId: "1:90299682381:web:d39afbc694314c12765604"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // 현재 유저 가져오기 (없으면 익명 로그인)
+        async function getUser() {
+            if (auth.currentUser) return auth.currentUser;
+            const { user } = await signInAnonymously(auth);
+            return user;
+        }
+
+        // 🔹 1) Firestore에서 unlock 상태 불러오기
+        async function fetchUnlocks() {
+            const user = await getUser();
+            const ref = doc(db, "users", user.uid, "meta", "unlocks");
+            const snap = await getDoc(ref);
+
+            if (snap.exists()) {
+                const data = snap.data();
+                console.log("불러온 unlock 상태:", data);
+                if (window.applyStoredUnlocks) {
+                    window.applyStoredUnlocks(data);   // 메인 스크립트로 전달
+                }
+            } else {
+                // 저장된 게 없으면 null 전달해서 기본 렌더링만
+                if (window.applyStoredUnlocks) {
+                    window.applyStoredUnlocks(null);
+                }
+            }
+        }
+
+        // 🔹 2) Firestore에 unlock 상태 저장
+        async function saveUnlockState(subjectId) {
+            const user = await getUser();
+            const ref = doc(db, "users", user.uid, "meta", "unlocks");
+            await setDoc(ref, { [subjectId]: true }, { merge: true });
+            console.log("unlock 저장 완료:", subjectId);
+        }
+
+        // 메인 JS에서 호출하는 훅 연결
+        window.requestUnlockSync = function () {
+            fetchUnlocks().catch(err => {
+                console.error("unlock 불러오기 실패:", err);
+                if (window.applyStoredUnlocks) {
+                    window.applyStoredUnlocks(null);
+                }
+            });
+        };
+
+        window.saveUnlockState = function (subjectId) {
+            saveUnlockState(subjectId).catch(err => {
+                console.error("unlock 저장 실패:", err);
+            });
+        };
+    </script>
+
+
+    <div class="toast" id="toast"></div>
+</body>
+
+</html>
